@@ -1,0 +1,12 @@
+{
+  "model_type": "HistGradientBoosting",
+  "is_log_transformed": true,
+  "metrics": {
+    "r2": 0.963,
+    "mae": 2725155.15,
+    "rmse": 4713275.35,
+    "mape": 7.69,
+    "accuracy_percentage": 96.3
+  },
+  "feature_count": 18
+}
