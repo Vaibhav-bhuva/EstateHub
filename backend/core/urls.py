@@ -30,6 +30,16 @@ urlpatterns = [
     path('api/cities/', include('cities.urls')),
     path('api/search/', include('cities.search_urls')),
 
+    # Root paths to fix Axios stripping baseURL path
+    path('auth/', include('authentication.urls')),
+    path('properties/', include('properties.urls')),
+    path('ml/', include('ml_engine.urls')),
+    path('inquiries/', include('inquiries.urls')),
+    path('wishlist/', include('wishlist.urls')),
+    path('notifications/', include('notifications.urls')),
+    path('cities/', include('cities.urls')),
+    path('search/', include('cities.search_urls')),
+
     # Swagger
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
