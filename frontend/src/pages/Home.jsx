@@ -154,7 +154,7 @@ export default function Home() {
               icon: FiCpu,
               gradient: 'from-purple-500 to-indigo-600',
               title: 'AI Price Valuation',
-              desc: 'Our Random Forest ML algorithm analyzes market trends, locality scores, and property specs to deliver instant, accurate valuation estimates.'
+              desc: 'Our HistGradientBoosting ML algorithm analyzes market trends, locality scores, and property specs to deliver instant, accurate valuation estimates.'
             },
             {
               icon: FiShield,

@@ -25,7 +25,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3 pt-2">
               <span className="bg-slate-900 border border-slate-800 text-slate-300 text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5">
-                <FiCpu size={13} className="text-purple-400" /> Random Forest ML
+                <FiCpu size={13} className="text-purple-400" /> HistGradientBoosting ML
               </span>
               <span className="bg-slate-900 border border-slate-800 text-slate-300 text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                 <FiShield size={13} className="text-emerald-400" /> 100% Verified

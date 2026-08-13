@@ -75,16 +75,16 @@ def seed():
 
     # 4. 10 Cities
     cities_data = [
-        {'name': 'Mumbai', 'state': 'Maharashtra', 'tier': 1, 'lat': 19.0760, 'lng': 72.8777, 'is_active': True},
-        {'name': 'Delhi', 'state': 'Delhi NCR', 'tier': 1, 'lat': 28.6139, 'lng': 77.2090, 'is_active': True},
-        {'name': 'Bangalore', 'state': 'Karnataka', 'tier': 1, 'lat': 12.9716, 'lng': 77.5946, 'is_active': True},
-        {'name': 'Hyderabad', 'state': 'Telangana', 'tier': 1, 'lat': 17.3850, 'lng': 78.4867, 'is_active': True},
-        {'name': 'Chennai', 'state': 'Tamil Nadu', 'tier': 1, 'lat': 13.0827, 'lng': 80.2707, 'is_active': True},
-        {'name': 'Pune', 'state': 'Maharashtra', 'tier': 1, 'lat': 18.5204, 'lng': 73.8567, 'is_active': True},
-        {'name': 'Kolkata', 'state': 'West Bengal', 'tier': 1, 'lat': 22.5726, 'lng': 88.3639, 'is_active': True},
-        {'name': 'Ahmedabad', 'state': 'Gujarat', 'tier': 2, 'lat': 23.0225, 'lng': 72.5714, 'is_active': True},
-        {'name': 'Jaipur', 'state': 'Rajasthan', 'tier': 2, 'lat': 26.9124, 'lng': 75.7873, 'is_active': True},
-        {'name': 'Surat', 'state': 'Gujarat', 'tier': 2, 'lat': 21.1702, 'lng': 72.8311, 'is_active': True},
+        {'name': 'Mumbai', 'state': 'Maharashtra', 'latitude': 19.0760, 'longitude': 72.8777, 'is_active': True},
+        {'name': 'Delhi', 'state': 'Delhi NCR', 'latitude': 28.6139, 'longitude': 77.2090, 'is_active': True},
+        {'name': 'Bangalore', 'state': 'Karnataka', 'latitude': 12.9716, 'longitude': 77.5946, 'is_active': True},
+        {'name': 'Hyderabad', 'state': 'Telangana', 'latitude': 17.3850, 'longitude': 78.4867, 'is_active': True},
+        {'name': 'Chennai', 'state': 'Tamil Nadu', 'latitude': 13.0827, 'longitude': 80.2707, 'is_active': True},
+        {'name': 'Pune', 'state': 'Maharashtra', 'latitude': 18.5204, 'longitude': 73.8567, 'is_active': True},
+        {'name': 'Kolkata', 'state': 'West Bengal', 'latitude': 22.5726, 'longitude': 88.3639, 'is_active': True},
+        {'name': 'Ahmedabad', 'state': 'Gujarat', 'latitude': 23.0225, 'longitude': 72.5714, 'is_active': True},
+        {'name': 'Jaipur', 'state': 'Rajasthan', 'latitude': 26.9124, 'longitude': 75.7873, 'is_active': True},
+        {'name': 'Surat', 'state': 'Gujarat', 'latitude': 21.1702, 'longitude': 72.8311, 'is_active': True},
     ]
 
     city_count = 0

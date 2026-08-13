@@ -27,19 +27,29 @@ class PricePredictionView(APIView):
         if 'error' in result:
             return Response({'error': result['error']}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        # Save prediction history to MongoDB
-        try:
-            collection = get_collection('prediction_history')
-            collection.insert_one({
-                'user_id': str(request.user.id),
-                'user_email': request.user.email,
-                'role': request.user.role,
-                'input': serializer.validated_data,
-                'result': result,
-                'created_at': timezone.now().isoformat()
-            })
-        except Exception:
-            pass
+        # Extract user data before passing to thread to avoid Django LazyObject thread-safety issues
+        user_id = str(request.user.id)
+        user_email = request.user.email
+        user_role = request.user.role
+        input_data = serializer.validated_data
+        
+        # Save prediction history to MongoDB (Background Thread)
+        def save_history():
+            try:
+                collection = get_collection('prediction_history')
+                collection.insert_one({
+                    'user_id': user_id,
+                    'user_email': user_email,
+                    'role': user_role,
+                    'input': input_data,
+                    'result': result,
+                    'created_at': timezone.now().isoformat()
+                })
+            except Exception:
+                pass
+                
+        import threading
+        threading.Thread(target=save_history, daemon=True).start()
 
         return Response(result)
 
@@ -61,20 +71,29 @@ class BuyerPredictionView(APIView):
         if 'error' in result:
             return Response({'error': result['error']}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        # Save to MongoDB
-        try:
-            collection = get_collection('prediction_history')
-            collection.insert_one({
-                'user_id': str(request.user.id),
-                'user_email': request.user.email,
-                'role': 'buyer',
-                'type': 'buyer_requirement',
-                'input': serializer.validated_data,
-                'result': result,
-                'created_at': timezone.now().isoformat()
-            })
-        except Exception:
-            pass
+        # Extract user data before passing to thread to avoid Django LazyObject thread-safety issues
+        user_id = str(request.user.id)
+        user_email = request.user.email
+        input_data = serializer.validated_data
+
+        # Save to MongoDB (Background Thread)
+        def save_buyer_history():
+            try:
+                collection = get_collection('prediction_history')
+                collection.insert_one({
+                    'user_id': user_id,
+                    'user_email': user_email,
+                    'role': 'buyer',
+                    'type': 'buyer_requirement',
+                    'input': input_data,
+                    'result': result,
+                    'created_at': timezone.now().isoformat()
+                })
+            except Exception:
+                pass
+                
+        import threading
+        threading.Thread(target=save_buyer_history, daemon=True).start()
 
         return Response(result)
 

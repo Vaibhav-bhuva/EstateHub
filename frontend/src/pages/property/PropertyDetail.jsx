@@ -13,6 +13,7 @@ import { useWishlist } from '../../hooks/useWishlist';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Modal from '../../components/common/Modal';
 import InquiryForm from '../../components/property/InquiryForm';
+import EMICalculator from '../../components/property/EMICalculator';
 import { toast } from 'react-toastify';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -293,6 +294,9 @@ export default function PropertyDetail() {
               </div>
             </div>
           )}
+
+          {/* EMI Calculator */}
+          <EMICalculator propertyPrice={property.price} />
         </div>
       </div>
 

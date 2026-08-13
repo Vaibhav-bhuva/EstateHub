@@ -126,6 +126,11 @@ class PropertyCreateView(generics.CreateAPIView):
                 order=idx
             )
 
+        # Trigger background ML model retraining with new data
+        import threading
+        from ml_scripts.retrainer import run_background_training
+        threading.Thread(target=run_background_training, daemon=True).start()
+
         return Response(
             PropertyDetailSerializer(prop, context={'request': request}).data,
             status=status.HTTP_201_CREATED

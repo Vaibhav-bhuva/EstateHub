@@ -13,12 +13,10 @@ _encoders = None
 _scaler = None
 _feature_cols = None
 _model_info = None
+_last_model_mtime = 0
 
-
-def _load_artifacts():
-    global _model, _encoders, _scaler, _feature_cols, _model_info
-    if _model is not None:
-        return True
+def _load_artifacts(force_reload=False):
+    global _model, _encoders, _scaler, _feature_cols, _model_info, _last_model_mtime
 
     models_dir = settings.ML_MODELS_DIR
     model_path = os.path.join(models_dir, 'model.pkl')
@@ -32,6 +30,12 @@ def _load_artifacts():
     if not os.path.exists(model_path):
         return False
 
+    current_mtime = os.path.getmtime(model_path)
+    
+    # Check if hot-reload is needed
+    if _model is not None and not force_reload and current_mtime <= _last_model_mtime:
+        return True
+
     try:
         _model = joblib.load(model_path)
         _encoders = joblib.load(os.path.join(models_dir, 'encoders.pkl'))
@@ -42,6 +46,9 @@ def _load_artifacts():
         if os.path.exists(info_path):
             with open(info_path) as f:
                 _model_info = json.load(f)
+                
+        _last_model_mtime = current_mtime
+        print(f"ML artifacts successfully loaded/hot-reloaded from {models_dir}")
         return True
     except Exception as e:
         print(f"⚠️ Error loading ML artifacts: {e}")
