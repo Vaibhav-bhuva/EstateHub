@@ -87,6 +87,8 @@ export const authService = {
   resendOTP: (data) => api.post('/auth/resend-otp/', data),
   adminGetUsers: (params) => api.get('/auth/admin/users/', { params }),
   adminDeleteUser: (userId) => api.delete(`/auth/admin/users/${userId}/`),
+  googleLogin: (data) => api.post('/auth/google/', data),
+  githubLogin: (data) => api.post('/auth/github/', data),
 };
 
 // ── Inquiry Service ──────────────────────────────────────────────

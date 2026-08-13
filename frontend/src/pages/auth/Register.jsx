@@ -6,15 +6,43 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import { getErrorMessage } from '../../utils/formatters';
+import { useGoogleLogin } from '@react-oauth/google';
+import { FcGoogle } from 'react-icons/fc';
+import { FiGithub } from 'react-icons/fi';
 
 export default function Register() {
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, googleLogin } = useAuth();
   const navigate = useNavigate();
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm({ defaultValues: { role: 'buyer' } });
   const selectedRole = watch('role');
+
+  const googleOAuthLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      try {
+        const user = await googleLogin(tokenResponse.access_token, selectedRole);
+        toast.success(`Welcome, ${user.first_name || 'User'}!`);
+        if (user.role === 'seller') navigate('/seller/dashboard');
+        else if (user.role === 'admin') navigate('/admin/dashboard');
+        else navigate('/buyer/dashboard');
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => toast.error('Google login failed')
+  });
+
+  const handleGithubLogin = () => {
+    sessionStorage.setItem('oauth_role', selectedRole);
+    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'dummy_github_id';
+    const redirectUri = `${window.location.origin}/auth/github/callback`;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email`;
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -135,12 +163,29 @@ export default function Register() {
               {errors.confirm_password && <p className="text-red-500 text-xs mt-1">{errors.confirm_password.message}</p>}
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 mt-2">
               {loading
                 ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 : 'Create Account'}
             </button>
           </form>
+
+          <div className="mt-6 flex items-center gap-4">
+            <div className="flex-1 h-px bg-gray-200"></div>
+            <span className="text-xs font-semibold text-gray-400 uppercase">Or continue with</span>
+            <div className="flex-1 h-px bg-gray-200"></div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <button onClick={() => googleOAuthLogin()} type="button" className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+              <FcGoogle size={20} />
+              <span className="text-sm font-semibold text-gray-700">Google</span>
+            </button>
+            <button onClick={handleGithubLogin} type="button" className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm bg-[#24292e] hover:bg-[#2f363d] text-white">
+              <FiGithub size={20} />
+              <span className="text-sm font-semibold">GitHub</span>
+            </button>
+          </div>
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account?{' '}

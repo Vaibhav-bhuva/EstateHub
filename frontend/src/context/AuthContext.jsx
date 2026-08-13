@@ -70,8 +70,26 @@ export const AuthProvider = ({ children }) => {
     return res.data.access;
   };
 
+  const googleLogin = async (token, role = 'buyer') => {
+    const res = await djangoAPI.post('/auth/google/', { token, role });
+    const { tokens, user: userData } = res.data;
+    localStorage.setItem('access_token', tokens.access);
+    localStorage.setItem('refresh_token', tokens.refresh);
+    setUser(userData);
+    return userData;
+  };
+
+  const githubLogin = async (code, role = 'buyer') => {
+    const res = await djangoAPI.post('/auth/github/', { code, role });
+    const { tokens, user: userData } = res.data;
+    localStorage.setItem('access_token', tokens.access);
+    localStorage.setItem('refresh_token', tokens.refresh);
+    setUser(userData);
+    return userData;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, refreshToken, loadUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, refreshToken, loadUser, googleLogin, githubLogin }}>
       {children}
     </AuthContext.Provider>
   );

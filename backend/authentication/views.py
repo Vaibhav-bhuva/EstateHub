@@ -1,6 +1,10 @@
 import random
 import string
+import uuid
+import requests
 from datetime import timedelta
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from django.contrib.auth import update_session_auth_hash
 from django.core.mail import send_mail
@@ -305,4 +309,114 @@ class AdminUsersView(APIView):
             return Response({'message': 'User deleted.'})
         except User.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class GoogleLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        role = request.data.get('role', 'buyer')
+        if not token:
+            return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Use access token to fetch user info
+            user_res = requests.get(
+                'https://www.googleapis.com/oauth2/v3/userinfo',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            if not user_res.ok:
+                return Response({'error': 'Invalid Google token'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            idinfo = user_res.json()
+            email = idinfo.get('email')
+            if not email:
+                return Response({'error': 'No email found in Google account'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            first_name = idinfo.get('given_name', '')
+            last_name = idinfo.get('family_name', '')
+
+            user, created = User.objects.get_or_create(email=email, defaults={
+                'first_name': first_name,
+                'last_name': last_name,
+                'role': role,
+                'is_verified': True
+            })
+
+            if created:
+                user.set_unusable_password()
+                user.save()
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'tokens': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                },
+                'user': UserProfileSerializer(user).data
+            })
+        except Exception as e:
+            return Response({'error': f'Failed to process Google login: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+class GitHubLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        code = request.data.get('code')
+        role = request.data.get('role', 'buyer')
+        if not code:
+            return Response({'error': 'Code is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        client_id = settings.GITHUB_CLIENT_ID if hasattr(settings, 'GITHUB_CLIENT_ID') else 'YOUR_GITHUB_CLIENT_ID'
+        client_secret = settings.GITHUB_CLIENT_SECRET if hasattr(settings, 'GITHUB_CLIENT_SECRET') else 'YOUR_GITHUB_CLIENT_SECRET'
+
+        token_res = requests.post(
+            'https://github.com/login/oauth/access_token',
+            data={'client_id': client_id, 'client_secret': client_secret, 'code': code},
+            headers={'Accept': 'application/json'}
+        )
+        token_json = token_res.json()
+        access_token = token_json.get('access_token')
+        if not access_token:
+            return Response({'error': 'Failed to get access token from GitHub'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_res = requests.get('https://api.github.com/user', headers={'Authorization': f'Bearer {access_token}'})
+        user_data = user_res.json()
+        
+        email = user_data.get('email')
+        if not email:
+            email_res = requests.get('https://api.github.com/user/emails', headers={'Authorization': f'Bearer {access_token}'})
+            emails = email_res.json()
+            primary = next((e for e in emails if e.get('primary')), None)
+            if primary:
+                email = primary['email']
+        
+        if not email:
+            return Response({'error': 'No email found in GitHub account'}, status=status.HTTP_400_BAD_REQUEST)
+
+        name = user_data.get('name') or user_data.get('login') or 'GitHub User'
+        parts = name.split(' ', 1)
+        first_name = parts[0]
+        last_name = parts[1] if len(parts) > 1 else ''
+
+        user, created = User.objects.get_or_create(email=email, defaults={
+            'first_name': first_name,
+            'last_name': last_name,
+            'role': role,
+            'is_verified': True
+        })
+
+        if created:
+            user.set_unusable_password()
+            user.save()
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            },
+            'user': UserProfileSerializer(user).data
+        })
 

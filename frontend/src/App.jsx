@@ -11,6 +11,7 @@ const Register = lazy(() => import('./pages/auth/Register'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
 const VerifyEmail = lazy(() => import('./pages/auth/VerifyEmail'));
+const GitHubCallback = lazy(() => import('./pages/auth/GitHubCallback'));
 
 // Public Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -70,6 +71,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
         {/* Public Routes */}
         <Route element={<MainLayout />}>
